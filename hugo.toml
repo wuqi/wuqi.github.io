@@ -31,18 +31,8 @@ summaryLength = 100
   icpNum = ""
   author = "wuqi"
 
-  [params.giscus]
-    repo = "wuqi/wuqi.github.io"
-    repoId = "R_kgDOVg5o2Q"
-    category = "General"
-    categoryId = "DIC_kwDOVg5o2c4DKQ8Q"
-    mapping = "pathname"
-    strict = "0"
-    reactionsEnabled = "1"
-    emitMetadata = "0"
-    inputPosition = "top"
-    theme = "light"
-    lang = "zh-CN"
+  [params.twikoo]
+    envId = "https://wuqi-twikoo.netlify.app/.netlify/functions/twikoo"
 
 [markup]
   [markup.goldmark.renderer]

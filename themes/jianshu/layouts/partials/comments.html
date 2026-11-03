@@ -10,68 +10,19 @@
 
     <div id="respond-post-{{ .Params.cid }}" class="respond">
         <h3 id="response">添加新评论</h3>
-        {{- $g := site.Params.giscus }}
-        {{- if $g.repoId }}
-        <script src="https://giscus.app/client.js"
-            data-repo="{{ $g.repo }}"
-            data-repo-id="{{ $g.repoId }}"
-            data-category="{{ $g.category }}"
-            data-category-id="{{ $g.categoryId }}"
-            data-mapping="{{ $g.mapping }}"
-            data-strict="{{ $g.strict }}"
-            data-reactions-enabled="{{ $g.reactionsEnabled }}"
-            data-emit-metadata="{{ $g.emitMetadata }}"
-            data-input-position="{{ $g.inputPosition }}"
-            data-theme="{{ $g.theme }}"
-            data-lang="{{ $g.lang }}"
-            crossorigin="anonymous"
-            async>
-        </script>
+        {{- $t := site.Params.twikoo }}
+        {{- if $t.envId }}
+        <div id="twikoo"></div>
+        <script src="/vendor/twikoo/twikoo.min.js"></script>
         <script>
-        (function () {
-            function theme() {
-                if (document.body.classList.contains('night-mode')) {
-                    return 'dark';
-                }
-                var m = document.cookie.match(/(?:^|;\s*)read-mode=([^;]+)/);
-                return m && decodeURIComponent(m[1]) === 'day' ? 'dark' : 'light';
-            }
-            function apply() {
-                var f = document.querySelector('iframe.giscus-frame');
-                if (f && f.contentWindow) {
-                    f.contentWindow.postMessage(
-                        { giscus: { setConfig: { theme: theme() } } },
-                        'https://giscus.app'
-                    );
-                }
-            }
-            function init() {
-                var s = document.querySelector('script[data-repo-id="{{ $g.repoId }}"]');
-                if (s) {
-                    s.setAttribute('data-theme', theme());
-                }
-                if (window.MutationObserver) {
-                    new MutationObserver(apply).observe(document.body, {
-                        attributes: true,
-                        attributeFilter: ['class']
-                    });
-                }
-                var tries = 0;
-                var timer = setInterval(function () {
-                    if (document.querySelector('iframe.giscus-frame') || ++tries > 20) {
-                        clearInterval(timer);
-                    }
-                    apply();
-                }, 500);
-            }
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', init);
-            } else {
-                init();
-            }
-        })();
+          twikoo.init({
+            envId: "{{ $t.envId }}",
+            el: '#twikoo',
+            path: location.pathname,
+            lang: 'zh-CN'
+          });
         </script>
-        <noscript>评论功能需要启用 JavaScript；也可以到 <a href="https://github.com/wuqi/wuqi.github.io/discussions">GitHub Discussions</a> 参与讨论。</noscript>
+        <noscript>评论功能需要启用 JavaScript。</noscript>
         {{- else }}
         <p class="comment-note">评论功能正在配置中。</p>
         {{- end }}
