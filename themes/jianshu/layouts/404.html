@@ -1,0 +1,12 @@
+{{ define "main" }}
+<div class="main-container">
+    <div class="error-page">
+        <h2 class="post-title">404 - 页面没有找到</h2>
+        <p>你查看的页面已被转移或删除, 要不要搜索一下:</p>
+        <form method="get" action="{{ "search/" | relURL }}">
+            <p><input type="text" name="q" class="text" autofocus /></p>
+            <p><button type="submit" class="submit btn s3">搜索</button></p>
+        </form>
+    </div>
+</div>
+{{ end }}

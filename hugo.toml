@@ -1,0 +1,56 @@
+baseURL = "https://diphda.info/"
+locale = "zh-cn"
+defaultContentLanguage = "zh"
+title = "多识鸟兽草木之名"
+theme = "jianshu"
+timeZone = "Asia/Shanghai"
+enableRobotsTXT = true
+hasCJKLanguage = true
+summaryLength = 100
+
+[pagination]
+  pagerSize = 5
+
+[taxonomies]
+  category = "categories"
+  tag = "tags"
+
+[permalinks]
+  categories = "/category/:slug/"
+  tags = "/tag/:slug/"
+
+[params]
+  description = "Just So So ..."
+  logoText = "多"
+  avatar = "/img/avatar.png"
+  gravatar = "/img/avatar.png"
+  tips = ""
+  cssStyle = "default"
+  alipayAccount = ""
+  alipayAmount = ""
+  icpNum = ""
+  author = "wuqi"
+
+  [params.giscus]
+    repo = "wuqi/wuqi.github.io"
+    repoId = ""
+    category = "General"
+    categoryId = ""
+    mapping = "pathname"
+    strict = "0"
+    reactionsEnabled = "1"
+    emitMetadata = "0"
+    inputPosition = "top"
+    theme = "light"
+    lang = "zh-CN"
+
+[markup]
+  [markup.goldmark.renderer]
+    unsafe = true
+  [markup.highlight]
+    codeFences = true
+    guessSyntax = false
+    noClasses = false
+
+[outputs]
+  home = ["HTML", "RSS"]

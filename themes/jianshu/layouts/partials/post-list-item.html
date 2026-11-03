@@ -1,0 +1,21 @@
+{{- $page := .page -}}
+{{- $hideAuthor := .hideAuthor | default false -}}
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+		{{- with $page.Params.thumb }}
+		<div class="post-thumb"><a class="thumb" href="{{ $page.RelPermalink }}" title="{{ $page.Title }}" style="background-image:url({{ . }})"></a></div>
+		{{- end }}
+		<h2 class="post-title" itemprop="name headline"><a itemtype="url" href="{{ $page.RelPermalink }}">{{ $page.Title }}</a></h2>
+		<ul class="post-meta">
+		    {{- if not $hideAuthor }}
+		    <li itemprop="author" itemscope itemtype="http://schema.org/Person"><i class="fa fa-user"></i> <a itemprop="name" href="/author/1/" rel="author">{{ $page.Params.author | default "wuqi" }}</a></li>
+		    {{- end }}
+		    <li><i class="fa fa-book"></i> {{ range $i, $t := $page.GetTerms "categories" }}{{ if $i }}, {{ end }}<a href="{{ $t.RelPermalink }}">{{ $t.Title }}</a>{{ end }}</li>
+		    <li><i class="fa fa-clock-o"></i> <time datetime="{{ $page.Date.Format "2006-01-02T15:04:05-07:00" }}" itemprop="datePublished">{{ partial "format-time.html" $page }}</time></li>
+		    <li><i class="fa fa-eye"></i> 阅读 {{ if gt (int ($page.Params.views | default 0)) 0 }}{{ $page.Params.views }}{{ end }}</li>
+			<li itemprop="interactionCount"><a itemprop="discussionUrl" href="{{ $page.RelPermalink }}#comments"><i class="fa fa-comments-o"></i> 评论 {{ $page.Params.comments_count | default 0 }}</a></li>
+		</ul>
+    	<div class="post-content" itemprop="articleBody">
+			{{ $page.Params.excerpt }}
+		</div>
+    </article>
+

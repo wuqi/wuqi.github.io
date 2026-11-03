@@ -1,0 +1,12 @@
+{{ define "main" }}
+<div class="main-container">
+{{- if gt (len .Pages) 0 }}
+{{- range .Pages }}
+{{ partial "post-list-item.html" (dict "page" . "hideAuthor" true) }}
+{{- end }}
+{{- else }}
+    <article class="post"><h2 class="post-title">没有找到内容</h2></article>
+{{- end }}
+{{ partial "pagination.html" . }}
+</div>
+{{ end }}

@@ -1,0 +1,29 @@
+{{ define "main" }}
+{{- if eq .Kind "term" }}
+{{- $posts := sort .Pages "Date" "desc" -}}
+{{- $pag := .Paginate $posts -}}
+<div class="main-container">
+{{- if gt (len $posts) 0 }}
+{{- range $pag.Pages }}
+{{ partial "post-list-item.html" (dict "page" . "hideAuthor" true) }}
+{{- end }}
+{{- else }}
+    <article class="post"><h2 class="post-title">没有找到内容</h2></article>
+{{- end }}
+{{ partial "pagination.html" . }}
+</div>
+{{- else }}
+<div class="main-container">
+    <article class="post preview">
+        <h1 class="post-title">{{ if eq .Data.Singular "category" }}分类{{ else }}标签{{ end }}</h1>
+        <div class="post-content">
+            <ul class="tag-list">
+            {{- range .Pages }}
+                <li><a href="{{ .RelPermalink }}">{{ .Title }}({{ len .Pages }})</a></li>
+            {{- end }}
+            </ul>
+        </div>
+    </article>
+</div>
+{{- end }}
+{{ end }}

@@ -1,0 +1,67 @@
+{{ define "main" }}
+<div class="main-container">
+    <article class="post preview">
+        <h1 class="post-title">搜索</h1>
+        <div class="post-content">
+            <form class="search-form" method="get" action="{{ "search/" | relURL }}" role="search" style="margin-bottom:24px;">
+                <input type="text" name="q" id="search-input" class="text" placeholder="输入关键字搜索" autocomplete="off" style="width:70%;padding:8px;" />
+                <button type="submit" class="btn s3">搜索</button>
+            </form>
+            <p id="search-status"></p>
+            <div id="search-results"></div>
+        </div>
+    </article>
+</div>
+<script>
+(function () {
+    var params = new URLSearchParams(window.location.search);
+    var q = (params.get('q') || '').trim();
+    var input = document.getElementById('search-input');
+    var status = document.getElementById('search-status');
+    var box = document.getElementById('search-results');
+    if (input) input.value = q;
+    if (!q) {
+        status.textContent = '输入关键字开始搜索。';
+        return;
+    }
+    status.textContent = '搜索中…';
+    fetch('{{ "search-index.json" | relURL }}')
+        .then(function (r) { return r.json(); })
+        .then(function (items) {
+            var key = q.toLowerCase();
+            var hits = items.filter(function (it) {
+                var hay = [it.title, it.text, (it.categories || []).join(' '), (it.tags || []).join(' ')].join(' ').toLowerCase();
+                return hay.indexOf(key) !== -1;
+            });
+            status.textContent = '找到 ' + hits.length + ' 篇文章';
+            box.innerHTML = '';
+            hits.slice(0, 50).forEach(function (it) {
+                var article = document.createElement('article');
+                article.className = 'post';
+                var h2 = document.createElement('h2');
+                h2.className = 'post-title';
+                var a = document.createElement('a');
+                a.href = it.url;
+                a.textContent = it.title;
+                h2.appendChild(a);
+                var meta = document.createElement('ul');
+                meta.className = 'post-meta';
+                var li = document.createElement('li');
+                li.innerHTML = '<i class="fa fa-clock-o"></i> ';
+                li.appendChild(document.createTextNode(it.date));
+                meta.appendChild(li);
+                var excerpt = document.createElement('div');
+                excerpt.className = 'post-content';
+                excerpt.textContent = it.text.slice(0, 160) + (it.text.length > 160 ? '…' : '');
+                article.appendChild(h2);
+                article.appendChild(meta);
+                article.appendChild(excerpt);
+                box.appendChild(article);
+            });
+        })
+        .catch(function () {
+            status.textContent = '搜索索引加载失败。';
+        });
+})();
+</script>
+{{ end }}

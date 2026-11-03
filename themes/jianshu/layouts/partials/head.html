@@ -1,0 +1,50 @@
+{{- $title := site.Title -}}
+{{- if .IsHome -}}
+  {{- $title = site.Title -}}
+{{- else if and .IsPage (eq .Section "posts") -}}
+  {{- $title = printf "%s - %s" .Title site.Title -}}
+{{- else if eq .Kind "term" -}}
+  {{- if eq .Data.Singular "category" -}}
+    {{- $title = printf "分类 %s 下的文章 - %s" .Title site.Title -}}
+  {{- else -}}
+    {{- $title = printf "标签 %s 下的文章 - %s" .Title site.Title -}}
+  {{- end -}}
+{{- else -}}
+  {{- $title = printf "%s - %s" .Title site.Title -}}
+{{- end -}}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>{{ $title }}</title>
+    {{- with or .Description site.Params.description }}
+    <meta name="description" content="{{ . }}">
+    {{- end }}
+    <link rel="canonical" href="{{ .Permalink }}">
+    <link rel="alternate" type="application/rss+xml" href="{{ "index.xml" | absURL }}" title="{{ site.Title }}">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/vendor/fontawesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/{{ site.Params.cssStyle }}.css">
+    <script>
+     window._bd_share_config = {
+      "common": {
+        "bdSnsKey": {},
+        "bdText": "",
+        "bdMini": "2",
+        "bdMiniList": false,
+        "bdPic": "",
+        "bdStyle": "0",
+        "bdSize": "16"
+      },
+      "share": {}
+    };
+    with(document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src =  'https://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion=' + ~ ( - new Date() / 36e5)];
+    </script>
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    {{- if and .IsPage (eq .Section "posts") }}
+    <link rel="stylesheet" href="/vendor/prettify/prettify.css">
+    {{- end }}

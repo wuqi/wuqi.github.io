@@ -1,0 +1,60 @@
+{{- $logo := site.Params.logoText | default (substr site.Title 0 1) -}}
+{{- $pages := where site.RegularPages "Section" "pages" -}}
+{{- $pages = sort $pages "Date" "asc" -}}
+{{- $headers := hugo.Data.headers.headers -}}
+{{- $cover := "/img/header_1.jpg" -}}
+{{- with $headers -}}{{- $cover = index (shuffle .) 0 -}}{{- end -}}
+<div class="navbar navbar-jianshu shrink">
+	<div class="dropdown">
+		<a class="dropdown-toggle logo" data-target="#nav-menu" href="#">{{ $logo }}</a>
+		<ul class="dropdown-menu" id="nav-menu">
+			<li><a href="{{ site.Home.RelPermalink }}"><i class="fa fa-home"></i>首页 </a></li>
+			{{- range $pages }}
+			<li><a href="{{ .RelPermalink }}" title="{{ .Title }}"><i class="fa fa-{{ .Params.slug }}"> </i> {{ .Title }}</a></li>
+			{{- end }}
+		</ul>
+	</div>
+</div>
+<div class="navbar-user">
+	<a class="login" href="https://github.com/wuqi/wuqi.github.io" target="_blank" rel="noopener"> <i class="fa fa-github"> </i> GitHub</a>
+	<a class="set-view-mode pull-right" data-mode="day" href="javascript:void(0)"> <i class="fa fa-moon-o"> </i> </a>
+</div>
+<div class="navbar navbar-jianshu">
+	<div class="dropdown">
+		<a class="logo{{ if .IsHome }} active{{ end }}" role="button" data-original-title="个人主页" data-container="div.expanded" href="{{ site.Home.RelPermalink }}"> <b> {{ $logo }}</b> <i class="fa fa-home"> </i> <span class="title"> 首页 </span> </a>
+		{{- range $pages }}
+		<a{{ if eq $.RelPermalink .RelPermalink }} class="active"{{ end }} href="{{ .RelPermalink }}" title="{{ .Title }}"><i class="fa fa-{{ .Params.slug }}"> </i> <span class="title"> {{ .Title }} </span> </a>
+		{{- end }}
+	</div>
+</div>
+<div class="wrapper">
+<div class="sidebar">
+     <div class="cover-img" style="background-image: url({{ $cover }})"></div>
+    <div class="bottom-block">
+       <img class="avatar-img" src="{{ site.Params.avatar }}" ></img>
+      <h1>{{ site.Title }}</h1>
+      <p>{{ site.Params.description }}</p>
+    </div>
+</div>
+<div class="main">
+    <div class="page-title clearfix">
+      <ul class="navigation clearfix">
+       <li><a href="{{ site.Home.RelPermalink }}">首页</a> &raquo;</li>
+        {{- if .IsHome }}
+    		<li class="active"><a href="javascript:;">最近更新</a></li>
+    	{{- else if and .IsPage (eq .Section "posts") }}
+    		<li class="active">{{ with index (.GetTerms "categories") 0 }}<a href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}</li>
+    	{{- else if eq .Kind "term" }}
+    		<li class="active"><a href="javascript:;">{{ if eq .Data.Singular "category" }}分类 {{ .Title }} 下的文章{{ else }}标签 {{ .Title }} 下的文章{{ end }}</a></li>
+    	{{- else }}
+    		<li class="active"><a href="javascript:;">{{ .Title }}</a></li>
+    	{{- end }}
+       <li class="search">
+        <form class="search-form" method="get" action="{{ "search/" | relURL }}" role="search">
+    	 <input type="text" name="q" class="text" placeholder="输入关键字搜索" autocomplete="off"/>
+         <button type="submit" class="btn s3"><i class="fa fa-search"></i></button>
+        </form>
+        </li>
+      </ul>
+     </div>
+

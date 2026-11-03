@@ -1,0 +1,11 @@
+{{ define "main" }}
+{{- $posts := where site.RegularPages "Section" "posts" -}}
+{{- $posts = sort $posts "Date" "desc" -}}
+{{- $pag := .Paginate $posts -}}
+<div id="main-container" class="main-container">
+{{- range $pag.Pages }}
+{{ partial "post-list-item.html" (dict "page" .) }}
+{{- end }}
+{{ partial "pagination.html" . }}
+</div>
+{{ end }}

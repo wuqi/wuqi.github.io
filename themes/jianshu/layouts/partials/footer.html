@@ -1,0 +1,50 @@
+    </div>
+</div>
+<footer>
+   <div class="footer-inner">
+    <p>
+		{{- range sort (where site.RegularPages "Section" "pages") "Date" "asc" }}
+        <a href="{{ .RelPermalink }}" title="{{ .Title }}">{{ .Title }}</a> |
+        {{- end }}
+		<a href="{{ "index.xml" | relURL }}">文章 RSS</a> |
+        <a href="{{ "index.xml" | relURL }}">评论 RSS</a>
+	</p>
+    <p> &copy; {{ now.Year }} <a href="{{ site.Home.RelPermalink }}" target="_blank"> {{ site.Title }} </a>
+        / Powered by <a href="https://gohugo.io" target="_blank">Hugo</a>
+        / Theme(变异版) by <a href="http://lixianhua.com" target="_blank">绛木子</a>
+        {{- with site.Params.icpNum }}
+           / <a href="http://www.miitbeian.gov.cn/" target="blank">{{ . }}</a>
+        {{- end }}
+	</p>
+   </div>
+</footer>
+<div class="fixed-btn">
+    <a class="back-to-top" href="#" title="返回顶部"><i class="fa fa-chevron-up"></i></a>
+     {{- if and .IsPage (eq .Section "posts") }}
+    <a class="go-comments" href="#comments" title="评论"><i class="fa fa-comments"></i></a>
+    {{- end }}
+</div>
+<script src="/js/common.js"></script>
+{{- if and .IsPage (eq .Section "posts") }}
+<script src="/vendor/prettify/prettify.min.js"></script>
+<script src="/js/qrcode.js"></script>
+<script>
+$(function(){
+	$(window).load(function(){
+	     $("pre code").addClass("prettyprint");
+	     prettyPrint();
+	});
+	var qrcodeEl = document.getElementById("qrcode-img");
+	if (qrcodeEl) {
+		var qrcode = new QRCode(qrcodeEl, {
+			width : 96,
+			height : 96
+		});
+		qrcode.makeCode({{ .Permalink }});
+	}
+})
+</script>
+{{- end }}
+<script>
+window.isArchive = {{ if or .IsHome (eq .Kind "term") }}true{{ else }}false{{ end }};
+</script>

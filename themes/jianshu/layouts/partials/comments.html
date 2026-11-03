@@ -1,0 +1,35 @@
+<div id="comments">
+    {{- $cid := printf "%v" .Params.cid -}}
+    {{- with index hugo.Data.legacy_comments $cid }}
+	<p>
+	   已有 {{ .count }} 条评论
+	   <a class="pull-right" href="#response"><i class="fa fa-pencil"></i> 添加新评论</a>
+	</p>
+    {{ .html | safeHTML }}
+    {{- end }}
+
+    <div id="respond-post-{{ .Params.cid }}" class="respond">
+        <h3 id="response">添加新评论</h3>
+        {{- $g := site.Params.giscus }}
+        {{- if $g.repoId }}
+        <script src="https://giscus.app/client.js"
+            data-repo="{{ $g.repo }}"
+            data-repo-id="{{ $g.repoId }}"
+            data-category="{{ $g.category }}"
+            data-category-id="{{ $g.categoryId }}"
+            data-mapping="{{ $g.mapping }}"
+            data-strict="{{ $g.strict }}"
+            data-reactions-enabled="{{ $g.reactionsEnabled }}"
+            data-emit-metadata="{{ $g.emitMetadata }}"
+            data-input-position="{{ $g.inputPosition }}"
+            data-theme="{{ $g.theme }}"
+            data-lang="{{ $g.lang }}"
+            crossorigin="anonymous"
+            async>
+        </script>
+        <noscript>评论功能需要启用 JavaScript；也可以到 <a href="https://github.com/wuqi/wuqi.github.io/discussions">GitHub Discussions</a> 参与讨论。</noscript>
+        {{- else }}
+        <p class="comment-note">评论功能正在配置中。</p>
+        {{- end }}
+    </div>
+</div>
