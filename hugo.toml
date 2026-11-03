@@ -33,9 +33,9 @@ summaryLength = 100
 
   [params.giscus]
     repo = "wuqi/wuqi.github.io"
-    repoId = ""
+    repoId = "R_kgDOVg5o2Q"
     category = "General"
-    categoryId = ""
+    categoryId = "DIC_kwDOVg5o2c4DKQ8Q"
     mapping = "pathname"
     strict = "0"
     reactionsEnabled = "1"
