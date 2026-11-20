@@ -1,0 +1,341 @@
+/*
+ * 中文阅读排版 + 代码块样式
+ * 参考 typo.css 的中文排版思路，作用域限定在正文与评论。
+ */
+
+.post-content,
+.comment-content {
+	font-family: "LXGW WenKai Screen", "Kaiti SC", "KaiTi", "STKaiti", "Songti SC", "Noto Serif CJK SC", serif;
+	font-size: 17px;
+	line-height: 1.85;
+	color: #2b2b2b;
+	text-align: justify;
+	text-justify: inter-ideograph;
+	letter-spacing: .01em;
+	overflow-wrap: break-word;
+	word-break: normal;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.post-title {
+	font-family: "LXGW WenKai Screen", "Kaiti SC", "KaiTi", "STKaiti", "Songti SC", "Noto Serif CJK SC", serif;
+}
+
+.preview .post-content,
+.preview .post-content p {
+	line-height: 1.85;
+}
+
+.post-content p,
+.comment-content p {
+	margin: 1.1em 0;
+}
+
+.post-content h1,
+.post-content h2,
+.post-content h3,
+.post-content h4,
+.post-content h5,
+.post-content h6,
+.comment-content h1,
+.comment-content h2,
+.comment-content h3,
+.comment-content h4,
+.comment-content h5,
+.comment-content h6 {
+	font-family: inherit;
+	font-weight: 700;
+	line-height: 1.45;
+	margin: 1.8em 0 .75em;
+	color: #1f2328;
+}
+
+.post-content h1,
+.comment-content h1 {
+	font-size: 1.6em;
+}
+
+.post-content h2,
+.comment-content h2 {
+	font-size: 1.45em;
+	padding-bottom: .35em;
+	border-bottom: 1px solid #eaecef;
+}
+
+.post-content h3,
+.comment-content h3 {
+	font-size: 1.25em;
+}
+
+.post-content h4,
+.comment-content h4 {
+	font-size: 1.1em;
+}
+
+.post-content ul,
+.post-content ol,
+.comment-content ul,
+.comment-content ol {
+	margin: 1em 0;
+	padding-left: 1.8em;
+}
+
+.post-content li,
+.comment-content li {
+	margin: .35em 0;
+}
+
+.post-content li > ul,
+.post-content li > ol,
+.comment-content li > ul,
+.comment-content li > ol {
+	margin: .35em 0;
+}
+
+.post-content blockquote,
+.comment-content blockquote {
+	margin: 1.5em 0;
+	padding: .65em 1.1em;
+	border-left: 4px solid #d0d7de;
+	border-radius: 0 6px 6px 0;
+	background: #f6f8fa;
+	color: #57606a;
+}
+
+.post-content blockquote p,
+.comment-content blockquote p {
+	margin: .4em 0;
+}
+
+.post-content a,
+.comment-content a {
+	color: #0969da;
+	text-decoration: none;
+	border-bottom: 1px solid rgba(9, 105, 218, .25);
+}
+
+.post-content a:hover,
+.comment-content a:hover {
+	border-bottom-color: #0969da;
+}
+
+.post-content img,
+.comment-content img {
+	max-width: 100%;
+	height: auto;
+	border-radius: 6px;
+}
+
+.post-content p > img,
+.comment-content p > img {
+	display: block;
+	margin: 1.5em auto;
+}
+
+.post-content figure,
+.comment-content figure {
+	margin: 1.5em 0;
+	text-align: center;
+}
+
+.post-content figcaption,
+.comment-content figcaption {
+	margin-top: .5em;
+	font-size: .9em;
+	color: #6a737d;
+}
+
+.post-content hr,
+.comment-content hr {
+	margin: 2.5em auto;
+	width: 60%;
+	border: 0;
+	border-top: 1px solid #e5e7eb;
+}
+
+.post-content table,
+.comment-content table {
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	margin: 1.5em 0;
+	overflow-x: auto;
+	border-collapse: collapse;
+	font-size: .95em;
+}
+
+.post-content th,
+.post-content td,
+.comment-content th,
+.comment-content td {
+	padding: .5em .8em;
+	border: 1px solid #e5e7eb;
+}
+
+.post-content th,
+.comment-content th {
+	background: #f6f8fa;
+	font-weight: 600;
+}
+
+.post-content tbody tr:nth-child(even),
+.comment-content tbody tr:nth-child(even) {
+	background: #fafbfc;
+}
+
+.post-content kbd,
+.comment-content kbd {
+	padding: .15em .4em;
+	border: 1px solid #d0d7de;
+	border-bottom-width: 2px;
+	border-radius: 4px;
+	background: #f6f8fa;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+	font-size: .85em;
+}
+
+.post-content mark,
+.comment-content mark {
+	padding: .1em .2em;
+	background: #fff3a3;
+}
+
+.post-content ::selection,
+.comment-content ::selection {
+	background: #dbeafe;
+}
+
+/* ---- 代码 ---- */
+
+.post-content :not(pre) > code,
+.comment-content :not(pre) > code {
+	padding: .15em .4em;
+	margin: 0 .1em;
+	border: 1px solid #e5e7eb;
+	border-radius: 5px;
+	background: #f2f3f5;
+	color: #1f2328;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", "Courier New", monospace;
+	font-size: .88em;
+	white-space: break-spaces;
+}
+
+.post-content pre,
+.comment-content pre {
+	margin: 1.5em 0;
+	padding: 1em 1.1em;
+	border: 1px solid #e1e4e8;
+	border-radius: 8px;
+	background: #f6f8fa;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", "Courier New", monospace;
+	font-size: 14px;
+	line-height: 1.6;
+	white-space: pre;
+	overflow-x: auto;
+	tab-size: 4;
+}
+
+.post-content pre code,
+.comment-content pre code {
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	color: inherit;
+	font-size: inherit;
+	white-space: inherit;
+}
+
+.post-content .highlight,
+.comment-content .highlight {
+	margin: 1.5em 0;
+}
+
+.post-content .highlight pre,
+.comment-content .highlight pre {
+	margin: 0;
+}
+
+/* ---- 夜间模式 ---- */
+
+.night-mode .post-content,
+.night-mode .comment-content {
+	color: #d0d0d0;
+}
+
+.night-mode .post-content h1,
+.night-mode .post-content h2,
+.night-mode .post-content h3,
+.night-mode .post-content h4,
+.night-mode .post-content h5,
+.night-mode .post-content h6,
+.night-mode .comment-content h1,
+.night-mode .comment-content h2,
+.night-mode .comment-content h3,
+.night-mode .comment-content h4,
+.night-mode .comment-content h5,
+.night-mode .comment-content h6 {
+	color: #f0f0f0;
+}
+
+.night-mode .post-content h2,
+.night-mode .comment-content h2 {
+	border-bottom-color: #4a4a4a;
+}
+
+.night-mode .post-content a,
+.night-mode .comment-content a {
+	color: #7ab7ff;
+	border-bottom-color: rgba(122, 183, 255, .3);
+}
+
+.night-mode .post-content blockquote,
+.night-mode .comment-content blockquote {
+	border-left-color: #555;
+	background: #333;
+	color: #b8b8b8;
+}
+
+.night-mode .post-content :not(pre) > code,
+.night-mode .comment-content :not(pre) > code {
+	border-color: #444;
+	background: #2f2f2f;
+	color: #e6e6e6;
+}
+
+.night-mode .post-content th,
+.night-mode .comment-content th {
+	background: #333;
+}
+
+.night-mode .post-content th,
+.night-mode .post-content td,
+.night-mode .comment-content th,
+.night-mode .comment-content td {
+	border-color: #4a4a4a;
+}
+
+.night-mode .post-content tbody tr:nth-child(even),
+.night-mode .comment-content tbody tr:nth-child(even) {
+	background: #333;
+}
+
+.night-mode .post-content hr,
+.night-mode .comment-content hr {
+	border-top-color: #4a4a4a;
+}
+
+@media (max-width: 768px) {
+	.post-content,
+	.comment-content {
+		font-size: 16px;
+		line-height: 1.8;
+	}
+
+	.post-content pre,
+	.comment-content pre {
+		font-size: 13px;
+		padding: .85em .9em;
+	}
+}

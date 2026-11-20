@@ -41,6 +41,8 @@ summaryLength = 100
     codeFences = true
     guessSyntax = false
     noClasses = false
+    lineNos = false
+    style = "github"
 
 [outputs]
   home = ["HTML", "RSS"]
