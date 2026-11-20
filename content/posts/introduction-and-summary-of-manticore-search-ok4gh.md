@@ -3,7 +3,7 @@ title: Manticore Search介绍和总结
 slug: introduction-and-summary-of-manticore-search-ok4gh
 url: /post/introduction-and-summary-of-manticore-search-ok4gh.html
 date: '2026-11-17 16:28:03+08:00'
-lastmod: '2026-11-18 09:53:43+08:00'
+lastmod: '2026-11-20 09:33:19+08:00'
 toc: true
 isCJKLanguage: true
 ---
@@ -69,85 +69,23 @@ INSERT INTO places (id, name, address, abbr, lat, lon) VALUES
 
 Manticore Search最友好的是有Http接口,级别都是Post操作,可以直接批量增删改查,具体文档参考[OpenAPI specification | Manticore Search Manual](https://manual.manticoresearch.com/Openapi)那一节,或者看看 [OpenAPI 规范 | Manticore Search Manual](https://manual.manticoresearch.com/zh/Openapi)  这个有个机器可读的规范,我建议是直接给AI吧
 
-简单的增删改查:
-
-```bash
-# 增加数据
-curl -X POST "http://127.0.0.1:9308" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "table": "places",
-    "id": 1,
-    "doc": {
-      "name": "北京天安门",
-      "address": "北京市东城区东长安街",
-      "abbr": "TAM",
-      "lat": 39.908722,
-      "lon": 116.397499
-    }
-  }'
-
-# 地理检索
-curl -X POST "http://127.0.0.1:9308" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "table": "places",
-    "query": {
-      "bool": {
-        "must": [
-          { "match": { "name": "天安门" } },
-          {
-            "geo_distance": {
-              "location_anchor": { "lat": 39.9087, "lon": 116.3975 },
-              "location_source": "lat,lon",
-              "distance_type": "adaptive",
-              "distance": "5km"
-            }
-          }
-        ]
-      }
-    }
-  }'
-
-## 更新
-curl -X POST "http://127.0.0.1:9308" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "table": "places",
-    "id": 1,
-    "doc": {
-      "lat": 39.909000,
-      "lon": 116.398000
-    }
-  }'
-## 覆盖
-curl -X POST "http://127.0.0" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "table": "places",
-    "id": 1,
-    "doc": {
-      "name": "北京天安门广场",
-      "address": "北京市东城区东长安街",
-      "abbr": "TAM",
-      "lat": 39.908722,
-      "lon": 116.397499
-    }
-  }'
-# 删除
-curl -X POST "http://127.0.0" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "table": "places",
-    "id": 1
-  }'
-
-
-```
-
 这是http接口,也可以直接进入mysql里,直接操作表,那个就是直接进入docker操作了,跟sql语法基本一致.
 
-## 模糊查询
+其实如果只需要简单的增删改查,可以直接用http的sql接口,查询直接用sql,
+
+```bash
+curl.exe -X POST http://127.0.0.1:9308/sql -d "select * from places order by id desc  LIMIT 5;"
+```
+
+如果要修改,加上 mode\=raw 参数即可,例如:
+
+```bash
+curl.exe -X POST "http://127.0.0.1:9308/sql?mode=raw" -d "DELETE FROM places WHERE id IN (1,2);"
+```
+
+‍
+
+### 自动补全
 
 Manticore 跟Sphinx一样支持全文检索,因此,也扩展了一些语法,具体参考 https://manual.manticoresearch.com/Searching/Spell_correction#SQL, 举一下例子:
 
@@ -203,193 +141,14 @@ SELECT
 SELECT ... OPTION ranker=sph04;
 ```
 
-## 全文检索
+### 全文检索
 
-所有全文搜索都靠 `MATCH('...')`​ 触发，它会对查询字符串应用**与建表时相同的分词设置**，再拿分词后的词项去匹配索引中的词项。**运算符页面**：在 `MATCH('...')` 的字符串内部，可以用特定符号控制词与词之间“必须同时出现”“出现任意一个”“允许错几个字”等规则。
+所有全文搜索都靠 `MATCH('...')`​ 触发，它会对查询字符串应用**与建表时相同的分词设置**，再拿分词后的词项去匹配索引中的词项。**运算符页面**：在 `MATCH('...')`​ 的字符串内部，可以用特定符号控制词与词之间“必须同时出现”“出现任意一个”“允许错几个字”等规则。每条 `SELECT`​ 最多一个 `MATCH()`。查询串会先用**与建表时完全相同的分词规则**切分，再拿切出来的词项去匹配索引中的词项。
 
 > **基本用法**回答“搜索从哪里发起”——用 `WHERE MATCH('...')`​；  
 > **运算符**回答“`MATCH` 字符串里面能怎么写”——字段限制、短语、Quorum、邻近、通配符等。
 
 ‍
-
----
-
-### 一、入口：`MATCH()` 做了什么
-
-全文搜索的唯一入口是 `WHERE MATCH('查询串')`​，每条 `SELECT`​ 最多一个 `MATCH()`。查询串会先用**与建表时完全相同的分词规则**切分，再拿切出来的词项去匹配索引中的词项。
-
-```sql
-SELECT id, name FROM places WHERE MATCH('北京');
-```
-
-如果没有写任何运算符，多个词之间默认是**隐式 AND**。`"hello world"` 意味着两个词都必须出现。
-
----
-
-### 二、布尔逻辑：AND、OR、否定、MAYBE
-
-Manticore 的布尔运算符写法比较特殊，和 SQL 的 `AND/OR` 不是一回事。
-
-|运算符|写法|说明|
-| :---------| :-----------| :----------------------------------------------------------|
-|隐式 AND|​`hello world`|多词默认全部命中，**没有显式的 `AND` 关键字**|
-|OR|​`hello \| world`|必须用竖线 `\|`​，**不能写 `OR`​**；`\|` 的优先级**高于**隐式 AND|
-|MAYBE|​`hello MAYBE world`|类似 `\|`，但**不会返回仅匹配右侧**的文档|
-|否定|​`hello -world`​ 或 `hello !world`|强制某词不出现；纯否定查询需开启 `not_terms_only_allowed`|
-
-```sql
--- 北京 且 南站（隐式 AND）
-SELECT * FROM places WHERE MATCH('北京 南站');
-
--- 故宫 或 天安门
-SELECT * FROM places WHERE MATCH('故宫 | 天安门');
-
--- 北京相关，但排除“南站”
-SELECT * FROM places WHERE MATCH('北京 -南站');
-```
-
-一个常见坑：写 `hello OR world`​ 会报错，正确写法是 `hello | world`。
-
----
-
-### 三、字段运算符 `@`：把搜索打到指定位置
-
-​`@` 系列运算符用来控制“在哪个字段里搜”。
-
-|写法|含义|
-| :-----| :---------------------------------------|
-|​`@name 关键词`|只在 `name` 字段中搜索|
-|​`@(name,address) 关键词`|在多个字段中搜索|
-|​`@!address 关键词`|**排除** `address` 字段|
-|​`@* 关键词`|显式搜索所有字段|
-|​`@name[50] 关键词`|只在 `name` 字段的**前 50 个词位置**内匹配|
-|​`@@relaxed @nosuchfield 关键词`|字段不存在时不报错，适合异构表|
-
-```sql
--- 只在 name 字段找“北京”
-SELECT * FROM places WHERE MATCH('@name 北京');
-
--- 在 name 和 abbr 两个字段里找“TAM”
-SELECT * FROM places WHERE MATCH('@(name,abbr) TAM');
-```
-
----
-
-### 四、短语、邻近与 Quorum
-
-这三类放在一起，是因为它们都作用于**多个词之间的关系**。
-
-**1. 短语 `"..."`**：引号内的词必须**相邻**出现。
-
-```sql
-SELECT * FROM places WHERE MATCH('"北京 南站"');
-```
-
-短语内部也支持 `*`​ 通配和括号 OR，例如 `"exact * phrase * * for terms"`。
-
-**2. 邻近 `"..."~N`​**：允许短语内的词之间隔一些词。`~N` 的计数方式是**整个跨度不超过 N 个词**，包含首尾词本身。
-
-```sql
--- “北京”和“博物院”之间最多隔 2 个词（总跨度 ≤3）
-SELECT * FROM places WHERE MATCH('"北京 博物院"~3');
-```
-
-官方例子 `"cat dog mouse"~5` 表示三个词必须落在**少于 8 个词**的范围内。
-
-**3. Quorum `/N`​ 与 `/0.x`**：要求短语中**至少命中一定数量或比例**的词即可，不要求全部命中。
-
-```sql
--- 3 个词中至少命中 2 个
-SELECT * FROM places WHERE MATCH('"北京 故宫 博物院"/2');
-
--- 3 个词中至少命中 50%（即 ≥2 个）
-SELECT * FROM places WHERE MATCH('"北京 故宫 博物院"/0.5');
-```
-
-Quorum 是**内置的模糊召回能力**，但它不做字符级纠错，只解决“多词输入时允许漏掉一部分”的问题。
-
----
-
-### 五、通配符：前缀、后缀、中缀
-
-通配符用于**词项的部分匹配**，但需要建表时配置相应索引。`min_infix_len`​ 开启子串能力，`min_prefix_len`​ 只开前缀。你已经设了 `min_infix_len='2'`，所以**中缀通配符可用**。
-
-|写法|含义|
-| :-----| :---------------------------------------|
-|​`nation*`|前缀匹配，匹配所有以 `nation` 开头的词|
-|​`*nation`|后缀匹配，匹配所有以 `nation` 结尾的词|
-|​`*nation*`|中缀/子串匹配，匹配包含 `nation` 的词|
-|​`t?st`|​`?`​ 匹配任意**单个字符**（如 `test`​、`tast`）|
-
-```sql
--- 匹配以“北京”开头的词项
-SELECT * FROM places WHERE MATCH('北京*');
-
--- 匹配包含“天安”的词项（中缀，依赖 min_infix_len）
-SELECT * FROM places WHERE MATCH('*天安*');
-
--- 匹配“南”和“站”之间隔一个任意字符的词项
-SELECT * FROM places WHERE MATCH('南?站');
-```
-
-需要注意：通配符会**显著增加查询时间**，尤其是短词项展开时，官方建议配合 `expansion_limit` 控制展开规模。另外，通配符是**对词典中已有词项的展开**，不是正则，也不是编辑距离纠错。
-
----
-
-### 六、正则表达式 `REGEX()`
-
-Manticore 从 6.3.0 开始提供**全文 REGEX 运算符**，语法遵循 **RE2**（Google 开发的高性能安全正则引擎）。使用前提是表必须配置了 `min_infix_len`​ 或 `min_prefix_len`。
-
-语法写在 `MATCH()` 的引号内：
-
-```sql
-SELECT * FROM places WHERE MATCH('"REGEX(/天.?门/)"');
-```
-
-更多示例：
-
-```sql
--- 匹配“故”和“宫”之间隔一个任意字符
-SELECT * FROM places WHERE MATCH('"REGEX(/故.宫/)"');
-
--- 匹配“北京”后跟任意内容
-SELECT * FROM places WHERE MATCH('"REGEX(/北京.*/)"');
-```
-
-需要特别留意两点：
-
-1. **性能**：REGEX 会对词典做**全扫描匹配**，消耗较大，建议配合 `expansion_limit` 限制展开数量。
-2. **作用对象**：正则匹配的是**词典中的词项**，而词典中的词经过了 `charset_table` 转换（默认小写化等），写正则时需要考虑这一点。
-
----
-
-### 七、顺序与位置运算符
-
-这一类运算符控制**词在字段中的出现顺序或位置**，在精确匹配场景中很有用。
-
-|运算符|写法|含义|
-| :---------| :-----| :-----------------------------------------|
-|严格顺序|​`black << cat`|词必须**按查询顺序**出现，顺序颠倒不匹配|
-|精确词形|​`=runs`|只匹配原词形，不做词干还原（需开启 `index_exact_words`）|
-|字段开头|​`^hello`|词必须出现在字段**最开头**|
-|字段结尾|​`world$`|词必须出现在字段**最末尾**|
-
-```sql
--- “北京”必须出现在 name 字段开头
-SELECT * FROM places WHERE MATCH('@name ^北京');
-
--- “站”必须出现在 name 字段末尾
-SELECT * FROM places WHERE MATCH('@name 站$');
-
--- “天安门”必须按这个顺序出现
-SELECT * FROM places WHERE MATCH('天安门 << 北京');
-```
-
-​`<<`​ 的优先级最低，可以组合复杂表达式，例如 `(bag of words) << "exact phrase" << red|green|blue`。
-
----
-
-### 八、速查总表
 
 |类别|运算符 / 语法|一句话|
 | :---------| :----------------------------------------| :-------------------------------|
@@ -404,13 +163,63 @@ SELECT * FROM places WHERE MATCH('天安门 << 北京');
 |位置|​`^`​、`$`|字段开头 / 结尾|
 |精确词形|​`=词`|不还原词干（需 `index_exact_words`）|
 
----
+‍
 
-### 九、结合 `places` 表的几个混合示例
-
-​`jieba_chinese` 会对中文做词典分词，查询串也会走同一套分词。下面的例子不局限在某个特定地名，而是展示运算符的组合用法：
+示例:
 
 ```sql
+SELECT id, name FROM places WHERE MATCH('北京');
+
+-- 北京 且 南站（隐式 AND）
+SELECT * FROM places WHERE MATCH('北京 南站');
+
+-- 故宫 或 天安门
+SELECT * FROM places WHERE MATCH('故宫 | 天安门');
+
+-- 北京相关，但排除“南站”
+SELECT * FROM places WHERE MATCH('北京 -南站');
+
+-- 只在 name 字段找“北京”
+SELECT * FROM places WHERE MATCH('@name 北京');
+
+-- 在 name 和 abbr 两个字段里找“TAM”
+SELECT * FROM places WHERE MATCH('@(name,abbr) TAM');
+
+SELECT * FROM places WHERE MATCH('"北京 南站"');
+
+-- “北京”和“博物院”之间最多隔 2 个词（总跨度 ≤3）
+SELECT * FROM places WHERE MATCH('"北京 博物院"~3');
+
+-- 3 个词中至少命中 2 个
+SELECT * FROM places WHERE MATCH('"北京 故宫 博物院"/2');
+
+-- 3 个词中至少命中 50%（即 ≥2 个）
+SELECT * FROM places WHERE MATCH('"北京 故宫 博物院"/0.5');
+
+-- 匹配以“北京”开头的词项
+SELECT * FROM places WHERE MATCH('北京*');
+
+-- 匹配包含“天安”的词项（中缀，依赖 min_infix_len）
+SELECT * FROM places WHERE MATCH('*天安*');
+
+-- 匹配“南”和“站”之间隔一个任意字符的词项
+SELECT * FROM places WHERE MATCH('南?站');
+
+-- 匹配“故”和“宫”之间隔一个任意字符
+SELECT * FROM places WHERE MATCH('"REGEX(/故.宫/)"');
+
+-- 匹配“北京”后跟任意内容
+SELECT * FROM places WHERE MATCH('"REGEX(/北京.*/)"');
+
+-- “北京”必须出现在 name 字段开头
+SELECT * FROM places WHERE MATCH('@name ^北京');
+
+-- “站”必须出现在 name 字段末尾
+SELECT * FROM places WHERE MATCH('@name 站$');
+
+-- “天安门”必须按这个顺序出现
+SELECT * FROM places WHERE MATCH('天安门 << 北京');
+
 -- 1）字段 + 布尔：只在 name 和 abbr 里找，排除 address
 SELECT id, name FROM places
 WHERE MATCH('@(name,abbr) 北京 -南站');
@@ -435,13 +244,3 @@ WHERE MATCH('"REGEX(/天.?门/)"');
 SELECT id, name FROM places
 WHERE MATCH('天安门 << 北京');
 ```
-
-实际使用时，**运算符可以组合**，但要注意优先级和分词结果。`EXPLAIN QUERY ... format=dot` 可以把解析树可视化，帮助确认组合是否符合预期。
-
-### 参考来源
-
-- Manticore Search 官方文档：全文运算符（布尔、字段、短语、邻近、位置等）
-- Manticore Search 官方文档：全文搜索基本用法
-- Manticore Search 官方文档：通配符搜索设置（`min_prefix_len`​ / `min_infix_len`）
-- Manticore Search 官方 REGEX 运算符说明（RE2 语法、使用前提、性能注意）
-- GitCode 社区整理：20+ 全文检索运算符实战清单（通配符、`<<`​、`^`​、`$`​、`=`、Quorum 等补充）
